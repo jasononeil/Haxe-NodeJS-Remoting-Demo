@@ -1,0 +1,14 @@
+#
+# Compile the Client
+#
+
+# Classpath and Libraries
+-cp lib/nodejs/ 
+-cp lib/remoting/ 
+-cp lib/transition9/ 
+-cp src/
+
+# Output
+-main Client
+-js out/static/client.js
+

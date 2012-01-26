@@ -1,0 +1,16 @@
+#
+# Compile the Server
+#
+
+# Classpath and Libraries
+-cp lib/nodejs/ 
+-cp lib/remoting/ 
+-cp lib/transition9/ 
+-cp lib/nodejs_externs/ 
+-cp src/
+-D nodejs 
+
+# Output
+-main Server
+-js out/node.js
+
