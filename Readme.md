@@ -17,6 +17,7 @@ Run these commands:
     node out/node.js 				# Run the server
 
 Or have them all as one line:
+
     haxe client.hxml; haxe server.hxml; node out/node.js
 
 Then visit http://localhost:8000/ in your browser, and open the console/firebug.
