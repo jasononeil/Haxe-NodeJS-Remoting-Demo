@@ -36,3 +36,15 @@ Why did I bother?
 * I was determined to make it work, and needed a blank slate to test / debug.
 * Example code of this working will be useful not only for me, but for many interested in using haxe to target NodeJS.
 * If I comment it really well, I'll hopefully understand NodeJS alot better.
+
+Using in your own project
+-------------------------
+
+Until Dion is able to update haxelib (it's not cooperating), this will only work with a more recent version from Git.  Rather than using "haxelib install ...", we'll use git submodules.  If you don't use git, you might have to download my repo and copy / paste.
+
+If you do use GIT, these commands will add the submodules for you:
+
+    git submodule add https://github.com/dionjwa/nodejs_externs.git lib/nodejs_externs
+    git submodule add https://github.com/cloudshift/hx-node.git lib/hx-node
+    git submodule add https://github.com/dionjwa/haxe_remoting.git lib/haxe_remoting
+    git submodule add https://github.com/dionjwa/transition9.git lib/transition9
