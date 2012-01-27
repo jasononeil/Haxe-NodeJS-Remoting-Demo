@@ -204,31 +204,30 @@ var Client = $hxClasses["Client"] = function() { }
 Client.__name__ = ["Client"];
 Client.main = function() {
 	haxe.Log.trace = haxe.Firebug.trace;
-	haxe.Log.trace("Set up connection and proxy",{ fileName : "Client.hx", lineNumber : 8, className : "Client", methodName : "main"});
 	var conn = haxe.remoting.HttpAsyncConnection.urlConnect("http://localhost:8000");
 	conn.setErrorHandler(function(err) {
-		haxe.Log.trace("Error : " + err,{ fileName : "Client.hx", lineNumber : 13, className : "Client", methodName : "main"});
+		haxe.Log.trace("Error : " + err,{ fileName : "Client.hx", lineNumber : 10, className : "Client", methodName : "main"});
 	});
 	var apiProxy = new ServerAPIProxy(conn);
+	apiProxy.sumOfTwoNumbers(3,6,function(result) {
+		haxe.Log.trace("The sum of our two numbers is: " + result,{ fileName : "Client.hx", lineNumber : 22, className : "Client", methodName : "main"});
+	});
 	apiProxy.serverInfo(function(info) {
 		var hostname = info.hostname;
 		var platform = info.platform;
 		var release = info.release;
 		var info1 = "" + hostname + " is running " + platform + ":" + release;
-		haxe.Log.trace("Server Info: " + info1,{ fileName : "Client.hx", lineNumber : 28, className : "Client", methodName : "main"});
+		haxe.Log.trace("Server Info: " + info1,{ fileName : "Client.hx", lineNumber : 32, className : "Client", methodName : "main"});
 	});
-	apiProxy.sumOfTwoNumbers(3,6,function(result) {
-		haxe.Log.trace("The sum of our two numbers is: " + result,{ fileName : "Client.hx", lineNumber : 32, className : "Client", methodName : "main"});
+	apiProxy.getTheServerScript(function(script) {
+		var numberOfLines = script.split("\n").length;
+		haxe.Log.trace("Number of lines in our serverside JS: " + numberOfLines,{ fileName : "Client.hx", lineNumber : 39, className : "Client", methodName : "main"});
 	});
 	apiProxy.login("correctUsername","wrongPassword",Client.processLoginResult);
 	apiProxy.login("correctUsername","correctPassword",Client.processLoginResult);
-	apiProxy.getTheServerScript(function(script) {
-		var numberOfLines = script.split("\n").length;
-		haxe.Log.trace("Number of lines in our serverside JS: " + numberOfLines,{ fileName : "Client.hx", lineNumber : 40, className : "Client", methodName : "main"});
-	});
 }
 Client.processLoginResult = function(didLoginWork) {
-	if(didLoginWork == true) haxe.Log.trace("This login was successful",{ fileName : "Client.hx", lineNumber : 50, className : "Client", methodName : "processLoginResult"}); else haxe.Log.trace("This login failed",{ fileName : "Client.hx", lineNumber : 54, className : "Client", methodName : "processLoginResult"});
+	if(didLoginWork == true) haxe.Log.trace("This login was successful",{ fileName : "Client.hx", lineNumber : 54, className : "Client", methodName : "processLoginResult"}); else haxe.Log.trace("This login failed",{ fileName : "Client.hx", lineNumber : 58, className : "Client", methodName : "processLoginResult"});
 }
 Client.prototype = {
 	__class__: Client

@@ -1,5 +1,11 @@
 import js.Node;
-/** This API runs on the server, but is shared through remoting. */
+
+// This API runs on the server, but is shared through remoting. 
+// All public methods with the "@remote" metadata are shared.  Each method must have a callback as the last argument. 
+// From what I can tell, the callback must be SomeClass->Void.  So it can't be 
+//     String->Int->Void             function(s:String, i:Int):Void
+// for example, but it could be
+//     MyComplexType->Void           function(o:MyComplexType):Void
 
 class ServerAPI
 {
