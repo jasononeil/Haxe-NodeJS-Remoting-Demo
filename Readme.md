@@ -7,9 +7,11 @@ Building / Running
 ------------------
 
 You will need the NodeJS "connect" module installed.  To install, run
-	npm install connect 			
+
+    npm install connect 			
 
 Run these commands:
+
     haxe client.hxml 				# Compile the client
     haxe server.hxml 				# Compile the server
     node out/node.js 				# Run the server
@@ -26,6 +28,7 @@ What this shows
 * That you can have a NodeJS server and a JS client, both with haxe, sharing code and using remoting to pass objects back and forth and call functions.
 
 Why did I bother?
+-----------------
 
 * I couldn't get the 'remoting' haxelib to work
 * The examples seemed confusing, and the haxelibs were out of date (not the author's fault - he hasn't been able to update)
