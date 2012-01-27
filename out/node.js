@@ -237,15 +237,6 @@ Reflect.makeVarArgs = function(f) {
 Reflect.prototype = {
 	__class__: Reflect
 }
-if(!js.node) js.node = {}
-js.node.JsHelper = $hxClasses["js.node.JsHelper"] = function() { }
-js.node.JsHelper.__name__ = ["js","node","JsHelper"];
-js.node.JsHelper.ifNull = function(alt,v) {
-	return v == null?alt:v;
-}
-js.node.JsHelper.prototype = {
-	__class__: js.node.JsHelper
-}
 var haxe = haxe || {}
 haxe.Log = $hxClasses["haxe.Log"] = function() { }
 haxe.Log.__name__ = ["haxe","Log"];
@@ -257,6 +248,15 @@ haxe.Log.clear = function() {
 }
 haxe.Log.prototype = {
 	__class__: haxe.Log
+}
+if(!js.node) js.node = {}
+js.node.JsHelper = $hxClasses["js.node.JsHelper"] = function() { }
+js.node.JsHelper.__name__ = ["js","node","JsHelper"];
+js.node.JsHelper.ifNull = function(alt,v) {
+	return v == null?alt:v;
+}
+js.node.JsHelper.prototype = {
+	__class__: js.node.JsHelper
 }
 if(!haxe.remoting) haxe.remoting = {}
 haxe.remoting.Macros = $hxClasses["haxe.remoting.Macros"] = function() { }
@@ -442,6 +442,67 @@ haxe.io.Error.OutsideBounds = ["OutsideBounds",2];
 haxe.io.Error.OutsideBounds.toString = $estr;
 haxe.io.Error.OutsideBounds.__enum__ = haxe.io.Error;
 haxe.io.Error.Custom = function(e) { var $x = ["Custom",3,e]; $x.__enum__ = haxe.io.Error; $x.toString = $estr; return $x; }
+haxe.remoting.Context = $hxClasses["haxe.remoting.Context"] = function() {
+	this.objects = new Hash();
+}
+haxe.remoting.Context.__name__ = ["haxe","remoting","Context"];
+haxe.remoting.Context.share = function(name,obj) {
+	var ctx = new haxe.remoting.Context();
+	ctx.addObject(name,obj);
+	return ctx;
+}
+haxe.remoting.Context.prototype = {
+	objects: null
+	,addObject: function(name,obj,recursive) {
+		this.objects.set(name,{ obj : obj, rec : recursive});
+	}
+	,call: function(path,params) {
+		if(path.length < 2) throw "Invalid path '" + path.join(".") + "'";
+		var inf = this.objects.get(path[0]);
+		if(inf == null) throw "No such object " + path[0];
+		var o = inf.obj;
+		var m = Reflect.field(o,path[1]);
+		if(path.length > 2) {
+			if(!inf.rec) throw "Can't access " + path.join(".");
+			var _g1 = 2, _g = path.length;
+			while(_g1 < _g) {
+				var i = _g1++;
+				o = m;
+				m = Reflect.field(o,path[i]);
+			}
+		}
+		if(!Reflect.isFunction(m)) throw "No such method " + path.join(".");
+		return m.apply(o,params);
+	}
+	,__class__: haxe.remoting.Context
+}
+var Std = $hxClasses["Std"] = function() { }
+Std.__name__ = ["Std"];
+Std["is"] = function(v,t) {
+	return js.Boot.__instanceof(v,t);
+}
+Std.string = function(s) {
+	return js.Boot.__string_rec(s,"");
+}
+Std["int"] = function(x) {
+	if(x < 0) return Math.ceil(x);
+	return Math.floor(x);
+}
+Std.parseInt = function(x) {
+	var v = parseInt(x,10);
+	if(v == 0 && x.charCodeAt(1) == 120) v = parseInt(x);
+	if(isNaN(v)) return null;
+	return v;
+}
+Std.parseFloat = function(x) {
+	return parseFloat(x);
+}
+Std.random = function(x) {
+	return Math.floor(Math.random() * x);
+}
+Std.prototype = {
+	__class__: Std
+}
 var Type = $hxClasses["Type"] = function() { }
 Type.__name__ = ["Type"];
 Type.getClass = function(o) {
@@ -852,67 +913,6 @@ haxe.Unserializer.prototype = {
 	}
 	,__class__: haxe.Unserializer
 }
-haxe.remoting.Context = $hxClasses["haxe.remoting.Context"] = function() {
-	this.objects = new Hash();
-}
-haxe.remoting.Context.__name__ = ["haxe","remoting","Context"];
-haxe.remoting.Context.share = function(name,obj) {
-	var ctx = new haxe.remoting.Context();
-	ctx.addObject(name,obj);
-	return ctx;
-}
-haxe.remoting.Context.prototype = {
-	objects: null
-	,addObject: function(name,obj,recursive) {
-		this.objects.set(name,{ obj : obj, rec : recursive});
-	}
-	,call: function(path,params) {
-		if(path.length < 2) throw "Invalid path '" + path.join(".") + "'";
-		var inf = this.objects.get(path[0]);
-		if(inf == null) throw "No such object " + path[0];
-		var o = inf.obj;
-		var m = Reflect.field(o,path[1]);
-		if(path.length > 2) {
-			if(!inf.rec) throw "Can't access " + path.join(".");
-			var _g1 = 2, _g = path.length;
-			while(_g1 < _g) {
-				var i = _g1++;
-				o = m;
-				m = Reflect.field(o,path[i]);
-			}
-		}
-		if(!Reflect.isFunction(m)) throw "No such method " + path.join(".");
-		return m.apply(o,params);
-	}
-	,__class__: haxe.remoting.Context
-}
-var Std = $hxClasses["Std"] = function() { }
-Std.__name__ = ["Std"];
-Std["is"] = function(v,t) {
-	return js.Boot.__instanceof(v,t);
-}
-Std.string = function(s) {
-	return js.Boot.__string_rec(s,"");
-}
-Std["int"] = function(x) {
-	if(x < 0) return Math.ceil(x);
-	return Math.floor(x);
-}
-Std.parseInt = function(x) {
-	var v = parseInt(x,10);
-	if(v == 0 && x.charCodeAt(1) == 120) v = parseInt(x);
-	if(isNaN(v)) return null;
-	return v;
-}
-Std.parseFloat = function(x) {
-	return parseFloat(x);
-}
-Std.random = function(x) {
-	return Math.floor(Math.random() * x);
-}
-Std.prototype = {
-	__class__: Std
-}
 var Lambda = $hxClasses["Lambda"] = function() { }
 Lambda.__name__ = ["Lambda"];
 Lambda.array = function(it) {
@@ -1059,24 +1059,17 @@ var Server = $hxClasses["Server"] = function() { }
 Server.__name__ = ["Server"];
 Server.main = function() {
 	var context = new haxe.remoting.Context();
-	var remotingmanager = new ServerAPI();
-	context.addObject("serverAPIService",remotingmanager);
+	var serverApi = new ServerAPI();
+	context.addObject("serverAPIService",serverApi);
 	var remotingHandler = new haxe.remoting.NodeJsHtmlConnection(context);
 	var remotingMiddleWare = function(req,res,next) {
-		if(!remotingHandler.handleRequest(req,res)) {
-			haxe.Log.trace("handleRequest was negative - pass on to next()",{ fileName : "Server.hx", lineNumber : 22, className : "Server", methodName : "main"});
-			next();
-		} else haxe.Log.trace("handleRequest worked",{ fileName : "Server.hx", lineNumber : 27, className : "Server", methodName : "main"});
+		var result = remotingHandler.handleRequest(req,res);
+		if(result == false) next();
 	};
 	var connect = js.Node.require("connect");
-	connect.createServer(connect.errorHandler({ showStack : true, showMessage : true, dumpExceptions : true}),remotingMiddleWare,function(req,res,next) {
-		if(req.url.length < 2) {
-			res.write(Server.html,"utf8");
-			res.writeHead(200);
-			res.end();
-		} else next();
-	},connect.static(__dirname + '/static/')).listen(8000,"127.0.0.1");
-	haxe.Log.trace("listening on port 8000",{ fileName : "Server.hx", lineNumber : 53, className : "Server", methodName : "main"});
+	var server = connect.createServer(connect.errorHandler({ showStack : true, showMessage : true, dumpExceptions : true}),remotingMiddleWare,(Reflect.field(connect,"static"))(js.Node.__dirname + "/static/",{ redirect : true}));
+	server.listen(8000,"127.0.0.1");
+	haxe.Log.trace("listening on port 8000",{ fileName : "Server.hx", lineNumber : 61, className : "Server", methodName : "main"});
 }
 Server.prototype = {
 	__class__: Server
@@ -1459,11 +1452,21 @@ var ServerAPI = $hxClasses["ServerAPI"] = function() {
 }
 ServerAPI.__name__ = ["ServerAPI"];
 ServerAPI.prototype = {
-	getTheFoo: function(fooId,cb) {
-		cb("someFoo");
+	sumOfTwoNumbers: function(a,b,cb) {
+		var sum = a + b;
+		cb(sum);
 	}
-	,getTheBar: function(fooId,cb) {
-		cb("someBar");
+	,serverInfo: function(cb) {
+		var info = { platform : js.Node.os.platform(), release : js.Node.os.release(), hostname : js.Node.os.hostname()};
+		cb(info);
+	}
+	,getTheServerScript: function(cb) {
+		var serverScript = js.Node.fs.readFileSync(js.Node.__filename,"utf8");
+		cb(serverScript);
+	}
+	,login: function(username,password,cb) {
+		var result = username == "correctUsername" && password == "correctPassword";
+		cb(result);
 	}
 	,__class__: ServerAPI
 }
@@ -1676,7 +1679,6 @@ haxe.remoting.NodeJsHtmlConnection.prototype = {
 		req.addListener("end",function() {
 			req.removeAllListeners("data");
 			req.removeAllListeners("end");
-			haxe.Log.trace(content,{ fileName : "NodeJsHtmlConnection.hx", lineNumber : 57, className : "haxe.remoting.NodeJsHtmlConnection", methodName : "handleRequest"});
 			res.setHeader("Content-Type","text/plain");
 			res.setHeader("x-haxe-remoting","1");
 			res.writeHead(200);
@@ -1965,10 +1967,9 @@ js.NodeC.FILE_READWRITE_APPEND = "a+";
 haxe.Unserializer.DEFAULT_RESOLVER = Type;
 haxe.Unserializer.BASE64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789%:";
 haxe.Unserializer.CODES = null;
-Server.html = "<html>\n<head>\n\t<title>Client / Server Remoting with haXe JS, and Node JS (also haXe).</title>\n\t<script type=\"text/javascript\" src=\"client.js\"></script>\n</head>\n<body>\n\t<h1>Test</h1>\n</body>\n</html>";
 haxe.Serializer.USE_CACHE = false;
 haxe.Serializer.USE_ENUM_INDEX = false;
 haxe.Serializer.BASE64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789%:";
-ServerAPI.__meta__ = { fields : { getTheFoo : { remote : null}, getTheBar : { remote : null}}};
+ServerAPI.__meta__ = { fields : { sumOfTwoNumbers : { remote : null}, serverInfo : { remote : null}, getTheServerScript : { remote : null}, login : { remote : null}}};
 haxe.remoting.NodeJsHtmlConnection.querystring = js.Node.require("querystring");
 Server.main()

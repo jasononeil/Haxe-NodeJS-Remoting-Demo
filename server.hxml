@@ -3,9 +3,9 @@
 #
 
 # Classpath and Libraries
--cp lib/nodejs/ 
--cp lib/remoting/ 
--cp lib/transition9/ 
+-cp lib/hx-node/ 
+-cp lib/haxe_remoting/src/ 
+-cp lib/transition9/src/
 -cp lib/nodejs_externs/ 
 -cp src/
 -D nodejs 

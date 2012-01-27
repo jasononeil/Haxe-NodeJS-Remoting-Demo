@@ -210,12 +210,25 @@ Client.main = function() {
 		haxe.Log.trace("Error : " + err,{ fileName : "Client.hx", lineNumber : 13, className : "Client", methodName : "main"});
 	});
 	var apiProxy = new ServerAPIProxy(conn);
-	apiProxy.getTheFoo("fooId",function(foo) {
-		haxe.Log.trace("successfully got the foo=" + foo,{ fileName : "Client.hx", lineNumber : 26, className : "Client", methodName : "main"});
+	apiProxy.serverInfo(function(info) {
+		var hostname = info.hostname;
+		var platform = info.platform;
+		var release = info.release;
+		var info1 = "" + hostname + " is running " + platform + ":" + release;
+		haxe.Log.trace("Server Info: " + info1,{ fileName : "Client.hx", lineNumber : 28, className : "Client", methodName : "main"});
 	});
-	apiProxy.getTheBar("fooId",function(foo) {
-		haxe.Log.trace("successfully got the bar=" + foo,{ fileName : "Client.hx", lineNumber : 30, className : "Client", methodName : "main"});
+	apiProxy.sumOfTwoNumbers(3,6,function(result) {
+		haxe.Log.trace("The sum of our two numbers is: " + result,{ fileName : "Client.hx", lineNumber : 32, className : "Client", methodName : "main"});
 	});
+	apiProxy.login("correctUsername","wrongPassword",Client.processLoginResult);
+	apiProxy.login("correctUsername","correctPassword",Client.processLoginResult);
+	apiProxy.getTheServerScript(function(script) {
+		var numberOfLines = script.split("\n").length;
+		haxe.Log.trace("Number of lines in our serverside JS: " + numberOfLines,{ fileName : "Client.hx", lineNumber : 40, className : "Client", methodName : "main"});
+	});
+}
+Client.processLoginResult = function(didLoginWork) {
+	if(didLoginWork == true) haxe.Log.trace("This login was successful",{ fileName : "Client.hx", lineNumber : 50, className : "Client", methodName : "processLoginResult"}); else haxe.Log.trace("This login failed",{ fileName : "Client.hx", lineNumber : 54, className : "Client", methodName : "processLoginResult"});
 }
 Client.prototype = {
 	__class__: Client
@@ -1536,9 +1549,6 @@ js.Lib.window = null;
 js.Lib.alert = function(v) {
 	alert(js.Boot.__string_rec(v,""));
 }
-js.Lib.print = function(v) {
-	console.log(v);
-}
 js.Lib.eval = function(code) {
 	return eval(code);
 }
@@ -1579,23 +1589,13 @@ js.Boot.__unhtml = function(s) {
 }
 js.Boot.__trace = function(v,i) {
 	var msg = i != null?i.fileName + ":" + i.lineNumber + ": ":"";
-	msg += js.Boot.__unhtml(js.Boot.__string_rec(v,"")) + "<br/>";
+	msg += js.Boot.__string_rec(v,"");
 	var d = document.getElementById("haxe:trace");
-	if(d == null) alert("No haxe:trace element defined\n" + msg); else d.innerHTML += msg;
+	if(d != null) d.innerHTML += js.Boot.__unhtml(msg) + "<br/>"; else if(typeof(console) != "undefined" && console.log != null) console.log(msg);
 }
 js.Boot.__clear_trace = function() {
 	var d = document.getElementById("haxe:trace");
 	if(d != null) d.innerHTML = "";
-}
-js.Boot.__closure = function(o,f) {
-	var m = o[f];
-	if(m == null) return null;
-	var f1 = function() {
-		return m.apply(o,arguments);
-	};
-	f1.scope = o;
-	f1.method = m;
-	return f1;
 }
 js.Boot.__string_rec = function(o,s) {
 	if(o == null) return "null";
@@ -1646,7 +1646,7 @@ js.Boot.__string_rec = function(o,s) {
 		if(hasp && !o.hasOwnProperty(k)) {
 			continue;
 		}
-		if(k == "prototype" || k == "__class__" || k == "__super__" || k == "__interfaces__") {
+		if(k == "prototype" || k == "__class__" || k == "__super__" || k == "__interfaces__" || k == "__properties__") {
 			continue;
 		}
 		if(str.length != 2) str += ", \n";
@@ -1737,7 +1737,7 @@ js.Boot.__init = function() {
 	if(String.prototype.cca == null) String.prototype.cca = String.prototype.charCodeAt;
 	String.prototype.charCodeAt = function(i) {
 		var x = this.cca(i);
-		if(x != x) return null;
+		if(x != x) return undefined;
 		return x;
 	};
 	var oldsub = String.prototype.substr;
@@ -1758,7 +1758,6 @@ js.Boot.__init = function() {
 		f.method = this;
 		return f;
 	};
-	$closure = js.Boot.__closure;
 }
 js.Boot.prototype = {
 	__class__: js.Boot
@@ -1769,11 +1768,17 @@ var ServerAPIProxy = $hxClasses["ServerAPIProxy"] = function(c) {
 ServerAPIProxy.__name__ = ["ServerAPIProxy"];
 ServerAPIProxy.prototype = {
 	_conn: null
-	,getTheFoo: function(fooId,cb) {
-		this._conn.resolve("getTheFoo").call([fooId],cb);
+	,sumOfTwoNumbers: function(a,b,cb) {
+		this._conn.resolve("sumOfTwoNumbers").call([a,b],cb);
 	}
-	,getTheBar: function(fooId,cb) {
-		this._conn.resolve("getTheBar").call([fooId],cb);
+	,serverInfo: function(cb) {
+		this._conn.resolve("serverInfo").call([],cb);
+	}
+	,getTheServerScript: function(cb) {
+		this._conn.resolve("getTheServerScript").call([],cb);
+	}
+	,login: function(username,password,cb) {
+		this._conn.resolve("login").call([username,password],cb);
 	}
 	,__class__: ServerAPIProxy
 }

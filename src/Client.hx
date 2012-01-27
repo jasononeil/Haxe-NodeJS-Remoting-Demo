@@ -19,15 +19,39 @@ class Client
 		
 		//You can use code completion here
 
+		apiProxy.serverInfo(function (info) {
+			var hostname = info.hostname;
+			var platform = info.platform;
+			var release = info.release;
 
-
-
-		apiProxy.getTheFoo("fooId", function (foo :String) :Void {
-		    trace("successfully got the foo=" + foo);
+			var info = Std.format("$hostname is running $platform:$release");
+			trace ("Server Info: " + info);
 		});
 
-		apiProxy.getTheBar("fooId", function (foo :String) :Void {
-		    trace("successfully got the bar=" + foo);
+		apiProxy.sumOfTwoNumbers(3, 6, function (result):Void {
+		    trace("The sum of our two numbers is: " + result);
 		});
+
+		apiProxy.login("correctUsername", "wrongPassword", processLoginResult);
+		apiProxy.login("correctUsername", "correctPassword", processLoginResult);
+
+		apiProxy.getTheServerScript(function (script:String) :Void {
+			var numberOfLines = script.split('\n').length;
+			trace("Number of lines in our serverside JS: " + numberOfLines);
+		});
+
+		
+	}
+
+	public static function processLoginResult(didLoginWork:Bool)
+	{
+		if (didLoginWork == true)
+		{
+			trace ("This login was successful");
+		}
+		else
+		{
+			trace ("This login failed");
+		}
 	}
 }

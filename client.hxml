@@ -4,8 +4,8 @@
 
 # Classpath and Libraries
 -cp lib/nodejs/ 
--cp lib/remoting/ 
--cp lib/transition9/ 
+-cp lib/haxe_remoting/src/
+-cp lib/transition9/src/
 -cp src/
 
 # Output
