@@ -4,3 +4,9 @@
 [submodule "haxe_remoting"]
 	path = lib/haxe_remoting
 	url = https://github.com/dionjwa/haxe_remoting.git
+[submodule "lib/transition9"]
+	path = lib/transition9
+	url = https://github.com/dionjwa/transition9.git
+[submodule "lib/nodejs_externs"]
+	path = lib/nodejs_externs
+	url = https://github.com/dionjwa/nodejs_externs.git
